@@ -2,7 +2,7 @@ name: Weekly Uni Task Injector
 on:
   schedule:
     - cron: '0 8 * * 3' # Jeden Mittwoch um 08:00 Uhr
-  workflow_dispatch: # Damit du es auch per Hand starten kannst
+  workflow_dispatch: # Zum manuellen Testen
 
 jobs:
   update_tasks:
@@ -16,31 +16,41 @@ jobs:
       - name: Calculate Sheet Numbers
         id: calc
         run: |
-          # Wir rechnen ab heute (KW 19 2026)
+          # Wir nehmen an, KW 19 (jetzt) ist die Basis
           CURRENT_KW=$(date +%V)
           START_KW=19
           DIFF=$((10#$CURRENT_KW - 10#$START_KW))
 
-          echo "a2_sheet=$((7 + DIFF))" >> $GITHUB_OUTPUT
-          echo "os_sheet=$((8 + DIFF))" >> $GITHUB_OUTPUT
+          # Berechnung der Nummern
+          A2=$((7 + DIFF))
+          OS=$((8 + DIFF))
           
-          # Physik im 2-Wochen-Takt
+          # Werte speichern (Maximal 11)
+          if [ $A2 -le 11 ]; then echo "a2_sheet=$A2" >> $GITHUB_OUTPUT; else echo "a2_sheet=stop" >> $GITHUB_OUTPUT; fi
+          if [ $OS -le 11 ]; then echo "os_sheet=$OS" >> $GITHUB_OUTPUT; else echo "os_sheet=stop" >> $GITHUB_OUTPUT; fi
+          
+          # Physik im 2-Wochen-Takt (bis Protokoll 4)
           if [ $((DIFF % 2)) -eq 0 ]; then
-            echo "physics=true" >> $GITHUB_OUTPUT
-            echo "phys_nr=$((1 + DIFF/2))" >> $GITHUB_OUTPUT
-          else
-            echo "physics=false" >> $GITHUB_OUTPUT
+            PHYS=$((1 + DIFF/2))
+            if [ $PHYS -le 4 ]; then
+              echo "physics=true" >> $GITHUB_OUTPUT
+              echo "phys_nr=$PHYS" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Create Weekly Issues
         run: |
-          # Analysis 2 (Jede Woche)
-          gh issue create --title "Analysis 2: Sheet ${{ steps.calc.outputs.a2_sheet }}" --label "Analysis 2" --repo ${{ github.repository }}
+          # Analysis 2
+          if [ "${{ steps.calc.outputs.a2_sheet }}" != "stop" ]; then
+            gh issue create --title "Analysis 2: Sheet ${{ steps.calc.outputs.a2_sheet }}" --label "Analysis 2" --repo ${{ github.repository }}
+          fi
 
-          # Operating Systems (Jede Woche)
-          gh issue create --title "Operating system: Sheet ${{ steps.calc.outputs.os_sheet }}" --label "OS" --repo ${{ github.repository }}
+          # Operating Systems
+          if [ "${{ steps.calc.outputs.os_sheet }}" != "stop" ]; then
+            gh issue create --title "Operating system: Sheet ${{ steps.calc.outputs.os_sheet }}" --label "OS" --repo ${{ github.repository }}
+          fi
 
-          # Physik Labor (Nur alle 2 Wochen)
+          # Physik Labor
           if [ "${{ steps.calc.outputs.physics }}" = "true" ]; then
             gh issue create --title "Physic lab: Labprotocoll-${{ steps.calc.outputs.phys_nr }}" --label "Physic lab" --repo ${{ github.repository }}
           fi
