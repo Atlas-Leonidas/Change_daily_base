@@ -13,61 +13,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup and Calculate
-        id: calc
+      - name: Create Issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 1. Sicherstellen, dass Labels existieren
           gh label create "Analysis 2" --color "1d76db" --force --repo ${{ github.repository }} || true
           gh label create "OS" --color "e99695" --force --repo ${{ github.repository }} || true
           gh label create "Physic lab" --color "fbca04" --force --repo ${{ github.repository }} || true
 
-          # 2. Rechnen (KW 19 = Basis-Woche für Sheet 7/8)
+          # 2. Datum berechnen (KW 19 ist Start für Sheet 7/8)
           CURRENT_KW=$(date +%V)
           START_KW=19
           DIFF=$((10#$CURRENT_KW - 10#$START_KW))
 
-          # Analysis 2 (Limit 11)
+          # 3. Analysis 2 (Limit 11)
           A2=$((7 + DIFF))
-          if [ $A2 -le 11 ]; then echo "a2_sheet=$A2" >> $GITHUB_OUTPUT; fi
+          if [ $A2 -le 11 ]; then
+            gh issue create --title "Analysis 2: Sheet $A2" --body "Wöchentliche Aufgabe" --label "Analysis 2" --repo ${{ github.repository }}
+          fi
 
-          # OS (Limit 11)
+          # 4. OS (Limit 11)
           OS=$((8 + DIFF))
-          if [ $OS -le 11 ]; then echo "os_sheet=$OS" >> $GITHUB_OUTPUT; fi
+          if [ $OS -le 11 ]; then
+            gh issue create --title "Operating system: Sheet $OS" --body "Wöchentliche Aufgabe" --label "OS" --repo ${{ github.repository }}
+          fi
           
-          # Physik (Alle 2 Wochen, Limit 4)
+          # 5. Physik (Alle 2 Wochen, Limit 4)
           if [ $((DIFF % 2)) -eq 0 ]; then
             PHYS=$((1 + DIFF/2))
             if [ $PHYS -le 4 ]; then
-              echo "physics=true" >> $GITHUB_OUTPUT
-              echo "phys_nr=$PHYS" >> $GITHUB_OUTPUT
+              gh issue create --title "Physic lab: Labprotocoll-$PHYS" --body "Zweiwöchentlicher Bericht" --label "Physic lab" --repo ${{ github.repository }}
             fi
           fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Issues
-        run: |
-          # Jedes Issue einzeln prüfen, ob ein Titel existiert
-          
-          if [[ -n "${{ steps.calc.outputs.a2_sheet }}" ]]; then
-            gh issue create --title "Analysis 2: Sheet ${{ steps.calc.outputs.a2_sheet }}" \
-                            --label "Analysis 2" \
-                            --body "Wöchentliche Aufgabe" \
-                            --repo ${{ github.repository }}
-          fi
-
-          if [[ -n "${{ steps.calc.outputs.os_sheet }}" ]]; then
-            gh issue create --title "Operating system: Sheet ${{ steps.calc.outputs.os_sheet }}" \
-                            --label "OS" \
-                            --body "Wöchentliche Aufgabe" \
-                            --repo ${{ github.repository }}
-          fi
-
-          if [[ "${{ steps.calc.outputs.physics }}" == "true" ]]; then
-            gh issue create --title "Physic lab: Labprotocoll-${{ steps.calc.outputs.phys_nr }}" \
-                            --label "Physic lab" \
-                            --body "Zweiwöchentlicher Bericht" \
-                            --repo ${{ github.repository }}
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
