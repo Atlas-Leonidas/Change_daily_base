@@ -9,9 +9,9 @@ jobs:
       issues: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4 # Das fehlte!
+        uses: actions/checkout@v4
 
-      - name: Create Issues in Weekly Batches
+      - name: Create Issues
         run: |
           # Woche 1
           gh issue create --title "Analysis 2: A2E-Sheet 7" --label "Analysis 2" --body "Woche 1" --repo ${{ github.repository }}
@@ -37,9 +37,9 @@ jobs:
           gh issue create --title "Control Eng: CS-Sheet 10" --label "Control Eng" --body "Woche 4" --repo ${{ github.repository }}
           gh issue create --title "Physic lab: Labprotocoll-4" --label "Physic lab" --body "Woche 4" --repo ${{ github.repository }}
 
-          # Sonstiges
-          gh issue create --title "DSP: Project" --label "DSP" --body "Semesterprojekt" --repo ${{ github.repository }}
-          gh issue create --title "AI-Lab: Labreport" --label "AI-Lab" --body "Abschlussbericht" --repo ${{ github.repository }}
+          # Einzeltasks
+          gh issue create --title "DSP: Project" --label "DSP" --body "Projektarbeit" --repo ${{ github.repository }}
+          gh issue create --title "AI-Lab: Labreport" --label "AI-Lab" --body "Bericht" --repo ${{ github.repository }}
           gh issue create --title "AI-Lab: Powerpoint" --label "AI-Lab" --body "Präsentation" --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
