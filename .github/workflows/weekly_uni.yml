@@ -1,0 +1,48 @@
+name: Weekly Uni Task Injector
+on:
+  schedule:
+    - cron: '0 8 * * 3' # Jeden Mittwoch um 08:00 Uhr
+  workflow_dispatch: # Damit du es auch per Hand starten kannst
+
+jobs:
+  update_tasks:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Calculate Sheet Numbers
+        id: calc
+        run: |
+          # Wir rechnen ab heute (KW 19 2026)
+          CURRENT_KW=$(date +%V)
+          START_KW=19
+          DIFF=$((10#$CURRENT_KW - 10#$START_KW))
+
+          echo "a2_sheet=$((7 + DIFF))" >> $GITHUB_OUTPUT
+          echo "os_sheet=$((8 + DIFF))" >> $GITHUB_OUTPUT
+          
+          # Physik im 2-Wochen-Takt
+          if [ $((DIFF % 2)) -eq 0 ]; then
+            echo "physics=true" >> $GITHUB_OUTPUT
+            echo "phys_nr=$((1 + DIFF/2))" >> $GITHUB_OUTPUT
+          else
+            echo "physics=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Weekly Issues
+        run: |
+          # Analysis 2 (Jede Woche)
+          gh issue create --title "Analysis 2: Sheet ${{ steps.calc.outputs.a2_sheet }}" --label "Analysis 2" --repo ${{ github.repository }}
+
+          # Operating Systems (Jede Woche)
+          gh issue create --title "Operating system: Sheet ${{ steps.calc.outputs.os_sheet }}" --label "OS" --repo ${{ github.repository }}
+
+          # Physik Labor (Nur alle 2 Wochen)
+          if [ "${{ steps.calc.outputs.physics }}" = "true" ]; then
+            gh issue create --title "Physic lab: Labprotocoll-${{ steps.calc.outputs.phys_nr }}" --label "Physic lab" --repo ${{ github.repository }}
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
