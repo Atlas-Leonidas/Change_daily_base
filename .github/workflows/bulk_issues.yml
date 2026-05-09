@@ -1,6 +1,6 @@
 name: Bulk Create Uni Issues
 on:
-  workflow_dispatch: # Manueller Start-Button unter "Actions"
+  workflow_dispatch:
 
 jobs:
   create_issues:
@@ -8,37 +8,38 @@ jobs:
     permissions:
       issues: write
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Das fehlte!
+
       - name: Create Issues in Weekly Batches
         run: |
-          # Funktion zum Erstellen: gh issue create --title "Titel" --label "Fach"
-          
-          echo "Erstelle Issues für Woche 1..."
-          gh issue create --title "Analysis 2: A2E-Sheet 7" --label "Analysis 2" --body "Wochenaufgabe 1"
-          gh issue create --title "Operating system: OS-Sheet 8" --label "OS" --body "Wochenaufgabe 1"
-          gh issue create --title "Control Eng: CS-Sheet 7" --label "Control Eng" --body "Wochenaufgabe 1"
-          gh issue create --title "Physic lab: Labprotocoll-1" --label "Physic lab" --body "Wochenaufgabe 1"
+          # Woche 1
+          gh issue create --title "Analysis 2: A2E-Sheet 7" --label "Analysis 2" --body "Woche 1" --repo ${{ github.repository }}
+          gh issue create --title "Operating system: OS-Sheet 8" --label "OS" --body "Woche 1" --repo ${{ github.repository }}
+          gh issue create --title "Control Eng: CS-Sheet 7" --label "Control Eng" --body "Woche 1" --repo ${{ github.repository }}
+          gh issue create --title "Physic lab: Labprotocoll-1" --label "Physic lab" --body "Woche 1" --repo ${{ github.repository }}
 
-          echo "Erstelle Issues für Woche 2..."
-          gh issue create --title "Analysis 2: A2E-Sheet 8" --label "Analysis 2" --body "Wochenaufgabe 2"
-          gh issue create --title "Operating system: OS-Sheet 9" --label "OS" --body "Wochenaufgabe 2"
-          gh issue create --title "Control Eng: CS-Sheet 8" --label "Control Eng" --body "Wochenaufgabe 2"
-          gh issue create --title "Physic lab: Labprotocoll-2" --label "Physic lab" --body "Wochenaufgabe 2"
+          # Woche 2
+          gh issue create --title "Analysis 2: A2E-Sheet 8" --label "Analysis 2" --body "Woche 2" --repo ${{ github.repository }}
+          gh issue create --title "Operating system: OS-Sheet 9" --label "OS" --body "Woche 2" --repo ${{ github.repository }}
+          gh issue create --title "Control Eng: CS-Sheet 8" --label "Control Eng" --body "Woche 2" --repo ${{ github.repository }}
+          gh issue create --title "Physic lab: Labprotocoll-2" --label "Physic lab" --body "Woche 2" --repo ${{ github.repository }}
 
-          echo "Erstelle Issues für Woche 3..."
-          gh issue create --title "Analysis 2: A2E-Sheet 9" --label "Analysis 2" --body "Wochenaufgabe 3"
-          gh issue create --title "Operating system: OS-Sheet 10" --label "OS" --body "Wochenaufgabe 3"
-          gh issue create --title "Control Eng: CS-Sheet 9" --label "Control Eng" --body "Wochenaufgabe 3"
-          gh issue create --title "Physic lab: Labprotocoll-3" --label "Physic lab" --body "Wochenaufgabe 3"
+          # Woche 3
+          gh issue create --title "Analysis 2: A2E-Sheet 9" --label "Analysis 2" --body "Woche 3" --repo ${{ github.repository }}
+          gh issue create --title "Operating system: OS-Sheet 10" --label "OS" --body "Woche 3" --repo ${{ github.repository }}
+          gh issue create --title "Control Eng: CS-Sheet 9" --label "Control Eng" --body "Woche 3" --repo ${{ github.repository }}
+          gh issue create --title "Physic lab: Labprotocoll-3" --label "Physic lab" --body "Woche 3" --repo ${{ github.repository }}
 
-          echo "Erstelle Issues für Woche 4..."
-          gh issue create --title "Analysis 2: A2E-Sheet 10" --label "Analysis 2" --body "Wochenaufgabe 4"
-          gh issue create --title "Operating system: OS-Sheet 11" --label "OS" --body "Wochenaufgabe 4"
-          gh issue create --title "Control Eng: CS-Sheet 10" --label "Control Eng" --body "Wochenaufgabe 4"
-          gh issue create --title "Physic lab: Labprotocoll-4" --label "Physic lab" --body "Wochenaufgabe 4"
+          # Woche 4
+          gh issue create --title "Analysis 2: A2E-Sheet 10" --label "Analysis 2" --body "Woche 4" --repo ${{ github.repository }}
+          gh issue create --title "Operating system: OS-Sheet 11" --label "OS" --body "Woche 4" --repo ${{ github.repository }}
+          gh issue create --title "Control Eng: CS-Sheet 10" --label "Control Eng" --body "Woche 4" --repo ${{ github.repository }}
+          gh issue create --title "Physic lab: Labprotocoll-4" --label "Physic lab" --body "Woche 4" --repo ${{ github.repository }}
 
-          echo "Erstelle Projekte und Berichte..."
-          gh issue create --title "DSP: Project" --label "DSP" --body "Semesterprojekt"
-          gh issue create --title "AI-Lab: Labreport" --label "AI-Lab" --body "Abschlussbericht"
-          gh issue create --title "AI-Lab: Powerpoint" --label "AI-Lab" --body "Präsentation"
+          # Sonstiges
+          gh issue create --title "DSP: Project" --label "DSP" --body "Semesterprojekt" --repo ${{ github.repository }}
+          gh issue create --title "AI-Lab: Labreport" --label "AI-Lab" --body "Abschlussbericht" --repo ${{ github.repository }}
+          gh issue create --title "AI-Lab: Powerpoint" --label "AI-Lab" --body "Präsentation" --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
